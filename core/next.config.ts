@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  serverExternalPackages: [],
   async headers() {
     return [
       {
