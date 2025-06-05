@@ -1,4 +1,6 @@
 import { headers } from "next/headers";
+import { getAllPosts } from "@/zap/lib/blog/get-all-posts";
+import { BlogShowcase } from "@/zap/components/blog/BlogShowcase";
 
 import { cn } from "@/lib/utils";
 import { AnimatedSection } from "@/zap/components/external/animated";
@@ -21,12 +23,18 @@ const sections = (
     totalFeedbacks: number;
   },
   numberOfUsers: number,
+  blogShowcase: React.ReactNode,
 ) => [
   {
     id: "hero",
     component: <HeroSection ratings={ratings} numberOfUsers={numberOfUsers} />,
     className:
       "h-[calc(100vh-4rem)] border-b bg-muted/50 flex items-center justify-center md:py-0 overflow-hidden min-h-[500px]",
+  },
+  {
+    id: "blog-showcase",
+    component: blogShowcase,
+    className: `bg-background border-b ${sectionClassName}`,
   },
   {
     id: "solution",
@@ -59,8 +67,16 @@ export default async function LandingPage() {
   const orpcServer = createOrpcServer(await headers());
   const ratings = await orpcServer.getAverageRating();
   const numberOfUsers = await orpcServer.getNumberOfUsers();
+  const posts = await getAllPosts();
+  const blogShowcase =
+    posts.length > 0 ? (
+      <section>
+        <h2 className="mb-4 text-2xl font-bold">From the Blog</h2>
+        <BlogShowcase posts={posts} />
+      </section>
+    ) : null;
 
-  const sectionData = sections(ratings, numberOfUsers);
+  const sectionData = sections(ratings, numberOfUsers, blogShowcase);
 
   return (
     <div className="flex min-h-screen flex-col">
