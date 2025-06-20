@@ -7,7 +7,7 @@ import { useEffect } from "react";
 
 import { FLAGS } from "@/data/flags";
 import { ThemeProvider } from "@/providers/theme.provider";
-import SuspendedPostHogPageView from "@/zap/components/features/analytics/posthog-page-view/posthog-page-view";
+import SuspendedPostHogPageView from "@/zap/components/analytics/analytics-posthog-page-view";
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -17,8 +17,8 @@ export default function Providers({ children }: ProvidersProps) {
   useEffect(() => {
     if (!FLAGS.ENABLE_POSTHOG) return;
 
-    posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
-      api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST!,
+    posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY || "", {
+      api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "",
       capture_pageview: false, // Disable automatic pageview tracking
       capture_pageleave: true, // Enable automatic pageleave tracking
     });
@@ -32,7 +32,7 @@ export default function Providers({ children }: ProvidersProps) {
       disableTransitionOnChange
     >
       <ProgressProvider
-        color="#3B82F6"
+        color="#efb100"
         options={{ showSpinner: false }}
         height="3px"
         shallowRouting
