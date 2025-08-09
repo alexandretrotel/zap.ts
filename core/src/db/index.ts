@@ -12,9 +12,9 @@ import {
 import { Pool } from "pg";
 
 import * as schema from "@/db/schema";
-import { PROD } from "@/lib/env.public";
-import { SERVER_ENV } from "@/lib/env.server";
-import { EnvironmentError } from "@/zap/lib/api/errors";
+import { PROD } from "@/zap/env/runtime";
+import { SERVER_ENV } from "@/zap/env/server";
+import { EnvironmentError } from "@/zap/errors";
 
 type Database = NodePgDatabase<typeof schema> | NeonHttpDatabase<typeof schema>;
 

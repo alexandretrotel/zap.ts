@@ -1,13 +1,13 @@
-import "../zap/lib/orpc/server";
+import "../zap/api/providers/orpc/server";
 import "./globals.css";
 
 import type { Metadata } from "next";
 
+import { geist } from "@/app/fonts";
 import { Toaster } from "@/components/ui/sonner";
-import { geist } from "@/fonts";
-import { VERCEL } from "@/lib/env.public";
 import { ZAP_DEFAULT_METADATA, ZAP_DEFAULT_SETTINGS } from "@/zap.config";
-import Providers from "@/zap/providers/providers";
+import { VERCEL } from "@/zap/env/runtime";
+import Providers from "@/zap-old/providers/providers";
 
 export const metadata: Metadata = ZAP_DEFAULT_METADATA;
 

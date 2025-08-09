@@ -1,16 +1,13 @@
-import { headers } from "next/headers";
 import Link from "next/link";
 
-import { ZapButton } from "@/components/zap-ui/button";
 import { SUPPORT_EMAIL } from "@/zap.config";
-import { BillingCards } from "@/zap/components/payments/billing-cards";
-import { FAQ } from "@/zap/components/payments/faq";
-import { getAuthDataOrRedirectToLogin } from "@/zap/lib/auth/redirects";
-import { getProducts } from "@/zap/lib/polar/utils";
+import { getAuthServerDataOrRedirectToLoginService } from "@/zap/auth/services";
+import { ZapButton } from "@/zap/components";
+import { BillingCards, FAQ } from "@/zap/payments/components";
+import { getProducts } from "@/zap/payments/utils";
 
 export default async function BillingPage() {
-  const _headers = await headers();
-  await getAuthDataOrRedirectToLogin(_headers);
+  await getAuthServerDataOrRedirectToLoginService();
   const products = getProducts();
 
   return (

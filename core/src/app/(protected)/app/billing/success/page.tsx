@@ -1,8 +1,7 @@
-import { headers } from "next/headers";
 import Link from "next/link";
 
-import { ZapButton } from "@/components/zap-ui/button";
-import { getAuthDataOrRedirectToLogin } from "@/zap/lib/auth/redirects";
+import { getAuthServerDataOrRedirectToLoginService } from "@/zap/auth/services";
+import { ZapButton } from "@/zap/components";
 
 interface BillingSuccessPageProps {
   searchParams: Promise<{
@@ -13,8 +12,7 @@ interface BillingSuccessPageProps {
 export default async function BillingSuccessPage({
   searchParams,
 }: BillingSuccessPageProps) {
-  const _headers = await headers();
-  await getAuthDataOrRedirectToLogin(_headers);
+  await getAuthServerDataOrRedirectToLoginService();
 
   const { checkout_id } = await searchParams;
 
