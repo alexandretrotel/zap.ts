@@ -1,9 +1,9 @@
 import path from 'node:path';
 import fs from 'fs-extra';
-import { GITHUB_DOWNLOAD_URL } from '@/data/website';
-import { FileSystemError } from '@/lib/errors';
+import { GITHUB_DOWNLOAD_URL } from '@/data/website.js';
+import { FileSystemError } from '@/lib/errors.js';
 
-export async function downloadTemplate(outputDir: string) {
+export async function downloadTemplate(outputDir: string): Promise<string> {
   try {
     const tarballUrl = GITHUB_DOWNLOAD_URL;
 

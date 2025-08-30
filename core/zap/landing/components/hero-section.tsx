@@ -1,6 +1,6 @@
 import { ArrowRight, ArrowUpRight, Star } from 'lucide-react';
 import Link from 'next/link';
-import { cache, useMemo } from 'react';
+import { cache } from 'react';
 
 import { isPluginEnabled } from '@/lib/plugins';
 import { getNumberOfUsersService } from '@/zap/auth/services';
@@ -11,36 +11,46 @@ import { AnimatedText } from '@/zap/components/misc/animated-text';
 import { getAverageRatingService } from '@/zap/feedbacks/services';
 
 const getStatsData = cache(async () => {
-  const isFeedbacksEnabled = useMemo(() => isPluginEnabled('feedbacks'), []);
-  const isAuthEnabled = useMemo(() => isPluginEnabled('auth'), []);
+  try {
+    const isFeedbacksEnabled = isPluginEnabled('feedbacks');
+    const isAuthEnabled = isPluginEnabled('auth');
 
-  const promises: Promise<unknown>[] = [];
+    const promises: Promise<unknown>[] = [];
 
-  if (isFeedbacksEnabled) {
-    promises.push(getAverageRatingService());
-  } else {
-    promises.push(Promise.resolve({ averageRating: 0, totalFeedbacks: 0 }));
+    if (isFeedbacksEnabled) {
+      promises.push(getAverageRatingService());
+    } else {
+      promises.push(Promise.resolve({ averageRating: 0, totalFeedbacks: 0 }));
+    }
+
+    if (isAuthEnabled) {
+      promises.push(getNumberOfUsersService());
+    } else {
+      promises.push(Promise.resolve(0));
+    }
+
+    const [ratingData, numberOfUsers] = await Promise.all(promises);
+
+    const { averageRating, totalFeedbacks } = isFeedbacksEnabled
+      ? (ratingData as { averageRating: number; totalFeedbacks: number })
+      : { averageRating: 0, totalFeedbacks: 0 };
+
+    return {
+      averageRating,
+      totalFeedbacks,
+      numberOfUsers: isAuthEnabled ? (numberOfUsers as number) : 0,
+      isFeedbacksEnabled,
+      isAuthEnabled,
+    };
+  } catch {
+    return {
+      averageRating: 0,
+      totalFeedbacks: 0,
+      numberOfUsers: 0,
+      isFeedbacksEnabled: false,
+      isAuthEnabled: false,
+    };
   }
-
-  if (isAuthEnabled) {
-    promises.push(getNumberOfUsersService());
-  } else {
-    promises.push(Promise.resolve(0));
-  }
-
-  const [ratingData, numberOfUsers] = await Promise.all(promises);
-
-  const { averageRating, totalFeedbacks } = isFeedbacksEnabled
-    ? (ratingData as { averageRating: number; totalFeedbacks: number })
-    : { averageRating: 0, totalFeedbacks: 0 };
-
-  return {
-    averageRating,
-    totalFeedbacks,
-    numberOfUsers: isAuthEnabled ? (numberOfUsers as number) : 0,
-    isFeedbacksEnabled,
-    isAuthEnabled,
-  };
 });
 
 export function HeroSection() {

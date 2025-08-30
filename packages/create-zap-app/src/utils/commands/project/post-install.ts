@@ -1,15 +1,15 @@
 import chalk from 'chalk';
 import type { Ora } from 'ora';
-import { GITHUB_REPO_URL } from '@/data/website';
-import type { PackageManager } from '@/schemas/package-manager.schema';
-import { execAsync } from '@/utils';
-import { generateEnv } from '@/utils/generation/generate-env';
+import { GITHUB_REPO_URL } from '@/data/website.js';
+import type { PackageManager } from '@/schemas/package-manager.schema.js';
+import { generateEnv } from '@/utils/generation/generate-env.js';
+import { execAsync } from '@/utils/index.js';
 
 export async function runFormatting(
   packageManager: PackageManager,
   outputDir: string,
   spinner: Ora
-) {
+): Promise<void> {
   try {
     spinner.text = 'Formatting the project...';
     spinner.start();
@@ -24,7 +24,10 @@ export async function runFormatting(
   }
 }
 
-export async function generateEnvFile(outputDir: string, spinner: Ora) {
+export async function generateEnvFile(
+  outputDir: string,
+  spinner: Ora
+): Promise<void> {
   spinner.text = 'Generating .env file...';
   spinner.start();
 
@@ -34,7 +37,7 @@ export async function generateEnvFile(outputDir: string, spinner: Ora) {
 export function displaySuccessMessage(
   projectName: string,
   packageManager: PackageManager
-) {
+): void {
   process.stdout.write(chalk.green('Project setup complete!'));
   process.stdout.write('\n\n');
   process.stdout.write(chalk.bold.green('🎉 Project created successfully!'));
