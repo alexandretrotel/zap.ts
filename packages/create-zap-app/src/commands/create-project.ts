@@ -1,49 +1,75 @@
-import path from 'node:path';
-import fs from 'fs-extra';
-import ora from 'ora';
-import { FileSystemError } from '@/lib/errors.js';
+import type { IDE, OptionalPluginId } from "@zap-ts/architecture/types";
+import fs from "fs-extra";
+import ora from "ora";
+import { FileSystemError } from "@/lib/errors.js";
+import type { PackageManager } from "@/types/package-manager";
 import {
   installDependenciesWithRetry,
   updateDependencies,
-} from '@/utils/commands/project/dependencies.js';
+} from "@/utils/commands/create-project/dependencies.js";
+import { ensureDirectoryIsReady } from "@/utils/commands/create-project/guard";
+import { pruneUnusedPluginsAndDependencies } from "@/utils/commands/create-project/plugins";
 import {
   displaySuccessMessage,
   generateEnvFile,
   runFormatting,
-} from '@/utils/commands/project/post-install.js';
+} from "@/utils/commands/create-project/post-install.js";
 import {
-  promptPackageManagerSelection,
-  promptProjectName,
-} from '@/utils/commands/project/prompts.js';
-import { setupProjectTemplate } from '@/utils/commands/project/setup.js';
+  resolveIDE,
+  resolveOutputDir,
+  resolvePackageManager,
+  resolvePlugins,
+  resolveProjectName,
+} from "@/utils/commands/create-project/resolve-options";
+import { getErrorMessage } from "@/utils/misc/error";
+import { setupTemplate } from "@/utils/template/setup-template";
 
-export async function createProject(): Promise<void> {
-  const projectName = await promptProjectName();
-  let packageManager = await promptPackageManagerSelection(
-    'Which package manager do you want to use?'
-  );
+type CreateProjectOptions = {
+  projectName?: string;
+  directory?: string;
+  packageManager?: PackageManager;
+  ide?: IDE;
+  plugins?: OptionalPluginId[];
+  verbose?: boolean;
+};
 
-  const outputDir = path.join(process.cwd(), projectName);
+export async function createProject(
+  options: CreateProjectOptions = {}
+): Promise<void> {
+  const projectName = await resolveProjectName(options.projectName);
+  let packageManager = await resolvePackageManager(options.packageManager);
+  const outputDir = resolveOutputDir(projectName, options.directory);
+  const ide = await resolveIDE(options.ide);
+  const selectedPlugins = await resolvePlugins(options.plugins);
+  const verbose = !!options.verbose;
+
+  await ensureDirectoryIsReady({ outputDir, projectName });
+
   const spinner = ora(`Creating project '${projectName}'...`).start();
 
-  try {
-    await fs.ensureDir(outputDir);
-  } catch (error) {
-    throw new FileSystemError(`Failed to create project directory: ${error}`);
-  }
+  await fs.ensureDir(outputDir).catch((error) => {
+    throw new FileSystemError(
+      `Failed to create project directory: ${getErrorMessage(error)}`
+    );
+  });
 
-  await setupProjectTemplate(outputDir, spinner);
-
-  const finalPackageManager = await installDependenciesWithRetry(
-    packageManager,
-    outputDir,
+  spinner.text = "Downloading Zap.ts template from GitHub...";
+  await setupTemplate({ outputDir, ide }, spinner, verbose);
+  await pruneUnusedPluginsAndDependencies(
+    { outputDir, selectedPlugins },
+    spinner,
+    verbose
+  );
+  packageManager = await installDependenciesWithRetry(
+    {
+      outputDir,
+      initialPM: packageManager,
+    },
     spinner
   );
-  packageManager = finalPackageManager;
+  await updateDependencies({ outputDir, packageManager }, spinner, verbose);
+  await runFormatting({ outputDir, packageManager }, spinner, verbose);
+  await generateEnvFile({ outputDir }, spinner, verbose);
 
-  await updateDependencies(packageManager, outputDir, spinner);
-  await runFormatting(packageManager, outputDir, spinner);
-  await generateEnvFile(outputDir, spinner);
-
-  displaySuccessMessage(projectName, packageManager);
+  displaySuccessMessage({ projectName, packageManager });
 }

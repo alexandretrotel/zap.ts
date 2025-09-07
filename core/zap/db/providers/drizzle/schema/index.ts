@@ -1,3 +1,19 @@
+import { userAISettings } from "@/zap/ai/db/providers/drizzle/schema";
+import {
+  account,
+  invitation,
+  member,
+  organization,
+  passkey,
+  session,
+  twoFactor,
+  user,
+  verification,
+} from "@/zap/auth/db/providers/drizzle/schema";
+import { feedback } from "@/zap/feedbacks/db/providers/drizzle/schema";
+import { pushNotifications } from "@/zap/pwa/db/providers/drizzle/schema";
+import { waitlist } from "@/zap/waitlist/db/providers/drizzle/schema";
+
 /**
  * This file aggregates the Drizzle schemas from various plugins.
  *
@@ -11,23 +27,6 @@
  *
  * Keep only what you need to reduce type surface & build time.
  */
-
-import { userAISettings } from '@/zap/ai/db/providers/drizzle/schema';
-import {
-  account,
-  invitation,
-  member,
-  organization,
-  passkey,
-  session,
-  twoFactor,
-  user,
-  verification,
-} from '@/zap/auth/db/providers/drizzle/schema';
-import { feedback } from '@/zap/feedbacks/db/providers/drizzle/schema';
-import { pushNotifications } from '@/zap/pwa/db/providers/drizzle/schema';
-import { waitlist } from '@/zap/waitlist/db/providers/drizzle/schema';
-
 export const schema = {
   // AI
   userAISettings,

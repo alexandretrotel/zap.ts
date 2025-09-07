@@ -5,18 +5,20 @@
   "types": "dist/index.d.ts",
   "type": "module",
   "private": false,
-  "version": "1.0.3",
+  "version": "1.0.10",
   "scripts": {
     "build": "tsdown --config tsdown.config.ts",
     "clean": "rm -rf ./dist",
-    "postbuild": "typedoc --entryPointStrategy expand src"
+    "postbuild": "typedoc --entryPointStrategy expand src",
+    "lint": "ultracite check",
+    "format": "ultracite fix"
   },
   "devDependencies": {
     "@zap-ts/config": "workspace:*",
     "@types/bun": "latest",
     "@types/react": "^19.1.12",
     "tsdown": "^0.14.2",
-    "typedoc": "^0.28.11"
+    "typedoc": "^0.28.12"
   },
   "peerDependencies": {
     "typescript": "^5.9.2"
@@ -116,6 +118,10 @@
     "./types": {
       "import": "./dist/types.js",
       "require": "./dist/types.cjs"
+    },
+    "./utils/plugins": {
+      "import": "./dist/utils/plugins.js",
+      "require": "./dist/utils/plugins.cjs"
     },
     "./package.json": "./package.json"
   }
